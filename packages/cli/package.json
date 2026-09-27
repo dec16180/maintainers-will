@@ -1,0 +1,20 @@
+{
+  "name": "maintainers-will",
+  "version": "0.1.0",
+  "description": "A dead man's switch for open source projects. Create a WILL.md and simulate the succession flow.",
+  "author": "Loopius Software UG (haftungsbeschränkt)",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "maintainers-will": "./dist/index.js",
+    "will": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@maintainers-will/core": "workspace:*"
+  }
+}

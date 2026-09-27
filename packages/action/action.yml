@@ -1,0 +1,30 @@
+name: "Maintainer's Will — Heartbeat"
+description: >-
+  Read maintainer activity, compute the succession stage, update
+  .will/state.json and .will/badge.json, and post the stage to the Will issue.
+  Read-only: this action grants no repository rights.
+author: 'Loopius Software UG (haftungsbeschränkt)'
+branding:
+  icon: 'clock'
+  color: 'purple'
+inputs:
+  token:
+    description: 'GitHub token used to read activity and comment on the Will issue.'
+    required: false
+    default: ${{ github.token }}
+  will-file:
+    description: 'Path to the WILL.md file.'
+    required: false
+    default: 'WILL.md'
+  will-issue-number:
+    description: 'Number of the pinned Will issue. If empty, it is found by title.'
+    required: false
+    default: ''
+outputs:
+  stage:
+    description: 'The succession stage after this run.'
+  changed:
+    description: 'Whether the stage changed this run.'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

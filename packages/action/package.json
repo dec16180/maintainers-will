@@ -1,0 +1,21 @@
+{
+  "name": "@maintainers-will/action",
+  "version": "0.1.0",
+  "description": "Maintainer's Will heartbeat GitHub Action: read signals, compute stage, commit state & badge, comment on the Will issue. Read-only; grants no rights.",
+  "author": "Loopius Software UG (haftungsbeschränkt)",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "@maintainers-will/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.1"
+  }
+}

@@ -1,0 +1,22 @@
+name: Maintainer's Will
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+# Minimal rights: read the repo, write the state/badge commit and the Will issue.
+# This workflow grants no repository permissions to anyone.
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Dogfooding: this repo runs its own action from source.
+      - uses: ./packages/action
+        with:
+          token: ${{ github.token }}

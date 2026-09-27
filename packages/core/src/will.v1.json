@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://maintainers-will.dev/schema/will.v1.json",
+  "title": "WILL.md front-matter (schema version 1)",
+  "description": "Machine-readable succession plan for an open source project. Lives in the YAML front-matter of WILL.md at the repo root.",
+  "type": "object",
+  "required": ["will", "maintainer", "heartbeat", "successors"],
+  "additionalProperties": false,
+  "properties": {
+    "will": {
+      "description": "Schema version. Tools reject unknown versions.",
+      "const": 1
+    },
+    "maintainer": {
+      "description": "GitHub login(s) whose activity is measured. If a list, the most recently active one counts.",
+      "oneOf": [
+        { "type": "string", "$ref": "#/$defs/login" },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "$ref": "#/$defs/login" }
+        }
+      ]
+    },
+    "heartbeat": {
+      "type": "object",
+      "required": ["inactivity"],
+      "additionalProperties": false,
+      "properties": {
+        "inactivity": {
+          "description": "Window without a signal until the warning stage.",
+          "$ref": "#/$defs/duration"
+        },
+        "remind_at": {
+          "description": "When to send the reminder, as a percentage of the inactivity window.",
+          "$ref": "#/$defs/percentage",
+          "default": "50%"
+        },
+        "grace": {
+          "description": "Warning -> handover grace period.",
+          "$ref": "#/$defs/duration",
+          "default": "30d"
+        },
+        "accept_within": {
+          "description": "Handover -> fallback window if no successor approves.",
+          "$ref": "#/$defs/duration",
+          "default": "60d"
+        },
+        "signals": {
+          "description": "Which events count as a sign of life.",
+          "type": "array",
+          "items": {
+            "enum": ["commits", "comments", "reviews", "releases", "check-in"]
+          },
+          "uniqueItems": true,
+          "default": ["commits", "comments", "reviews", "releases", "check-in"]
+        },
+        "scope": {
+          "description": "repo: only this repo's events. account: all public account events.",
+          "enum": ["repo", "account"],
+          "default": "repo"
+        }
+      }
+    },
+    "successors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["login"],
+        "additionalProperties": false,
+        "properties": {
+          "login": { "type": "string", "$ref": "#/$defs/login" },
+          "role": { "enum": ["primary", "backup"] },
+          "acknowledged": {
+            "description": "Set by the bot after a public /accept-nomination. ISO date (YYYY-MM-DD).",
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        }
+      }
+    },
+    "quorum": {
+      "description": "How many successors must approve.",
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "grant": {
+      "description": "Role granted on handover. admin/org-owner only exist in organizations.",
+      "enum": ["write", "admin", "org-owner"],
+      "default": "write"
+    },
+    "fallback": {
+      "description": "What happens if no successor approves. adopt never grants rights automatically.",
+      "enum": ["adopt", "archive", "none"],
+      "default": "adopt"
+    },
+    "registries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "type": { "enum": ["npm", "pypi", "rubygems", "crates", "cpan"] },
+          "name": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "notify": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sponsors": { "type": "boolean", "default": false },
+        "channels": {
+          "type": "array",
+          "items": { "enum": ["issue", "readme", "discussions"] },
+          "uniqueItems": true
+        }
+      }
+    },
+    "change_cooldown": {
+      "description": "Changes to successors/grant/quorum only take effect after this delay.",
+      "$ref": "#/$defs/duration",
+      "default": "30d"
+    }
+  },
+  "$defs": {
+    "login": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$"
+    },
+    "duration": {
+      "type": "string",
+      "pattern": "^[0-9]+[dwm]$"
+    },
+    "percentage": {
+      "type": "string",
+      "pattern": "^(?:100|[1-9][0-9]?)%$"
+    }
+  }
+}
