@@ -26,5 +26,5 @@ outputs:
   changed:
     description: 'Whether the stage changed this run.'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
