@@ -2,81 +2,81 @@
 
 Sep 27, 2026 · @Loopius
 
-## Zusammenfassung
+## Summary
 
-Maintainer's Will ist eine GitHub Action plus eine Datei `WILL.md`, die ein Open-Source-Projekt an vorab benannte Nachfolger übergibt, wenn der Maintainer über eine definierte Zeit inaktiv bleibt – öffentlich, in Stufen und jederzeit vom Maintainer abbrechbar. Zielgruppe sind Solo-Maintainer und kleine Teams, deren Projekt an einem persönlichen GitHub-Account hängt.
+Maintainer's Will is a GitHub Action plus a `WILL.md` file that hands an open source project over to pre-named successors when the maintainer stays inactive for a defined period – publicly, in stages, and cancellable by the maintainer at any time. It is aimed at solo maintainers and small teams whose project depends on a personal GitHub account.
 
-- **Trigger:** Inaktivität des Maintainers (Standard 180 Tage), danach 30 Tage Karenz mit öffentlicher Warnung.
-- **Nachfolger:** vorab benannt, müssen ihre Nominierung bestätigen; keine offene Adoption.
-- **Übergabe:** Rechte-Eskalation im Repo erst nach Zustimmung eines Nachfolgers, dazu README-Banner, Sponsoren- und Nutzerinfo, vorbereitete Registry-Anträge.
-- **Kein Hosting nötig:** alles läuft als Action im Repo; ein gehosteter Modus kommt später.
-- **Name:** provisorisch. Kandidaten: `maintainers-will`, `bequest`, `heir`. Lizenz MIT.
+- **Trigger:** maintainer inactivity (default 180 days), followed by a 30-day grace period with a public warning.
+- **Successors:** named in advance, must confirm their nomination; no open adoption.
+- **Handover:** permission escalation in the repo only after a successor approves, plus a README banner, sponsor and user notice, and prepared registry requests.
+- **No hosting required:** everything runs as an Action in the repo; a hosted mode comes later.
+- **Name:** provisional. Candidates: `maintainers-will`, `bequest`, `heir`. MIT license.
 
-## Problem & Ausgangslage
+## Problem & Current State
 
-Projekte sterben meist nicht durch den Tod des Maintainers, sondern weil er still verschwindet – und für diesen Fall gibt es heute kein Werkzeug. Was existiert, greift entweder nur beim Todesfall, erst nach dem Verschwinden oder wird von keinem Tool gelesen.
+Projects usually don't die because the maintainer dies, but because they quietly disappear – and for that case there is no tool today. What exists either only applies on death, only kicks in after the disappearance, or isn't read by any tool.
 
-| Mechanismus | Was er leistet | Lücke |
+| Mechanism | What it does | Gap |
 | --- | --- | --- |
-| [GitHub Successor-Einstellung](https://nesbitt.io/2026/06/16/how-open-source-projects-change-hands.html) (seit 2020) | Benannte Person darf nach Sterbeurkunde + 7 Tagen (oder Todesanzeige + 21 Tagen) Repos archivieren oder übernehmen | Nur Todesfall; deckt Repos, nicht Registry-Konten |
-| Registry-Prozesse (CPAN ADOPTME/HANDOFF, RubyGems Ownership Calls, PyPI [PEP 541](https://peps.python.org/pep-0541/)) | Übernahme verwaister Paketnamen nach Antrag | Manuell, erst nach dem Verschwinden; PEP 541 verlangt Kontaktversuche und einen funktionierenden Fork als Nachweis |
-| Distro-Orphan-Prozesse (Debian RFA, Fedora Orphan-User, AUR, CRAN) | Formale Zustandsautomaten für herrenlose Pakete | Nur für Distributionen, nicht für Sprach-Registries oder Repos |
-| [repostatus](https://www.repostatus.org/)-Badge, „looking for maintainers" im README | Signal an Menschen | Kein Tool wertet es aus |
-| [Stale Repos Action](https://github.blog/open-source/maintainers/announcing-the-stale-repos-action/) (GitHub OSPO, 2023) | Report inaktiver Repos einer Organisation | Report, keine Übergabe |
-| Generische Dead-Man's-Switches | Passwörter, Wallets, Nachrichten | Kein Bezug zu Repos oder Registries |
+| [GitHub successor setting](https://nesbitt.io/2026/06/16/how-open-source-projects-change-hands.html) (since 2020) | Named person may archive or take over repos after a death certificate + 7 days (or an obituary + 21 days) | Death only; covers repos, not registry accounts |
+| Registry processes (CPAN ADOPTME/HANDOFF, RubyGems ownership calls, PyPI [PEP 541](https://peps.python.org/pep-0541/)) | Takeover of orphaned package names on request | Manual, only after the disappearance; PEP 541 requires contact attempts and a working fork as evidence |
+| Distro orphan processes (Debian RFA, Fedora orphan user, AUR, CRAN) | Formal state machines for abandoned packages | Distributions only, not language registries or repos |
+| [repostatus](https://www.repostatus.org/) badge, "looking for maintainers" in the README | Signal to humans | No tool evaluates it |
+| [Stale Repos Action](https://github.blog/open-source/maintainers/announcing-the-stale-repos-action/) (GitHub OSPO, 2023) | Report of inactive repos in an organization | A report, not a handover |
+| Generic dead man's switches | Passwords, wallets, messages | No connection to repos or registries |
 
-Der Bedarf ist dokumentiert: eine [GitHub-Diskussion von 2020](https://github.com/orgs/community/discussions/23164) wünscht sich, dass Maintainer regelmäßig bestätigen müssen, ihr Repo noch zu betreuen, und ein [Docs-Issue vom Oktober 2025](https://github.com/github/docs/issues/40673) fragt, ob der Successor-Mechanismus auch für einen lebenden, aber unerreichbaren Maintainer gilt – ohne klare Antwort. Andrew Nesbitts Inventar vom Juni 2026 hält fest, dass der gewählte Nachfolger als Modell praktisch keine unterstützende Infrastruktur hat.
+The need is documented: a [GitHub discussion from 2020](https://github.com/orgs/community/discussions/23164) asks for maintainers to have to confirm regularly that they still look after their repo, and a [docs issue from October 2025](https://github.com/github/docs/issues/40673) asks whether the successor mechanism also applies to a living but unreachable maintainer – without a clear answer. Andrew Nesbitt's inventory from June 2026 notes that the chosen-successor model has practically no supporting infrastructure.
 
-Die Gegenseite ist ebenso dokumentiert: Im Juni 2026 übernahm ein Angreifer über 400 verwaiste AUR-Pakete und fügte jedem einen Schadcode-Download hinzu; event-stream (2018) und xz (2024) waren Übergaben an Fremde ohne Prüfung. Offene Adoption ohne Gatekeeping ist deshalb keine Option, sondern ein Angriffsvektor.
+The other side is just as well documented: in June 2026 an attacker took over more than 400 orphaned AUR packages and added a malware download to each one; event-stream (2018) and xz (2024) were handovers to strangers without vetting. Open adoption without gatekeeping is therefore not an option but an attack vector.
 
-## Designprinzipien
+## Design Principles
 
-Sechs Regeln entscheiden jede Detailfrage; wo sie sich widersprechen, gewinnt die höhere.
+Six rules decide every detailed question; where they conflict, the higher one wins.
 
-1. **Inaktivität, nicht Tod.** Burnout, Jobwechsel, Kind, Krankheit sind der häufige Fall. Der Todesfall bleibt bei GitHubs Successor-Einstellung; beides ergänzt sich.
-2. **Vorab benannt, vorab bestätigt.** Nur Nachfolger, die in `WILL.md` stehen und ihre Nominierung öffentlich angenommen haben, kommen infrage. Offene Adoption ist kein Standard, sondern ein separater, langsamerer Opt-in-Modus ohne automatische Rechtevergabe.
-3. **Öffentlich und umkehrbar.** Jede Stufe ist im Repo sichtbar (Issue, Badge, README), jede Frist ist bekannt, und ein einziges Lebenszeichen des Maintainers setzt alles zurück. Nichts passiert im Verborgenen, nichts passiert sofort.
-4. **Maschinenlesbar.** `WILL.md` hat ein festes Front-Matter-Schema, damit Badges, Dashboards, Registries und andere Tools es lesen können. Ein Badge, das kein Tool liest, hat niemandem geholfen.
-5. **Minimale Rechte, gated.** Die Action hält im Normalbetrieb nur Leserechte. Der eine Schritt, der Rechte vergibt, läuft in einem geschützten Environment und erst nach Freigabe durch einen Nachfolger.
-6. **Kein Hosting, kein Konto.** v1 ist eine Action im Repo plus eine CLI. Alles Wissen liegt im Repo, nichts bei uns – auch damit das Tool selbst keinen Bus-Faktor 1 hat.
+1. **Inactivity, not death.** Burnout, a job change, a child, illness are the common case. Death stays with GitHub's successor setting; the two complement each other.
+2. **Named in advance, confirmed in advance.** Only successors listed in `WILL.md` who have publicly accepted their nomination are eligible. Open adoption is not the default but a separate, slower opt-in mode without automatic permission grants.
+3. **Public and reversible.** Every stage is visible in the repo (issue, badge, README), every deadline is known, and a single sign of life from the maintainer resets everything. Nothing happens in secret, nothing happens instantly.
+4. **Machine-readable.** `WILL.md` has a fixed front-matter schema so badges, dashboards, registries and other tools can read it. A badge no tool reads has helped no one.
+5. **Minimal permissions, gated.** In normal operation the Action holds only read permissions. The one step that grants permissions runs in a protected environment and only after a successor approves.
+6. **No hosting, no account.** v1 is an Action in the repo plus a CLI. All knowledge lives in the repo, none with us – partly so that the tool itself doesn't have a bus factor of 1.
 
-## Ablauf in Stufen
+## Stages
 
-&#91;embedded content: Ablauf · 4 Stufen, 2 Ausgänge, 1 Rückweg\]
+&#91;embedded content: Flow · 4 stages, 2 exits, 1 way back\]
 
-Die Stufen laufen von links nach rechts mit festen Fristen; die Rückkehr des Maintainers führt aus jeder Stufe zurück auf Aktiv, das Protokoll bleibt erhalten.
+The stages run left to right with fixed deadlines; the maintainer's return leads from any stage back to Active, and the log is kept.
 
-| Stufe | Auslöser | Was die Action tut | Badge |
+| Stage | Trigger | What the Action does | Badge |
 | --- | --- | --- | --- |
-| Aktiv | wöchentlicher Lauf | letzte Maintainer-Aktivität in `.will/state.json` festhalten | active · seen 3d ago |
-| Erinnerung | 90 Tage ohne Signal (50 % des Fensters) | Maintainer im Will-Issue erwähnen (löst GitHub-Mail aus); optional Mail an hinterlegte Adresse | active |
-| Warnung | 180 Tage ohne Signal | öffentliches, gepinntes Issue mit Fristende, Nachfolger erwähnen, Hinweis oben im README | warning |
-| Übergabe | 30 Tage Karenz verstrichen | Handover-Job startet und wartet auf Freigabe eines Nachfolgers; Sponsoren aus `FUNDING.yml` informieren | succession |
-| Übergeben | ein Nachfolger hat freigegeben | Rolle je nach Repo-Typ: write, admin oder Org-Owner, README-Banner, Registry-Anträge generiert, Protokoll im Issue | handed over |
-| Fallback | 60 Tage ohne Freigabe | je nach `fallback`: Adoption öffentlich ausschreiben (ohne Rechte) oder Repo archivieren | seeking adopter |
+| Active | weekly run | record the last maintainer activity in `.will/state.json` | active · seen 3d ago |
+| Reminder | 90 days without a signal (50 % of the window) | mention the maintainer in the will issue (triggers a GitHub email); optionally email a configured address | active |
+| Warning | 180 days without a signal | public, pinned issue with the deadline, successors mentioned, notice at the top of the README | warning |
+| Handover | 30-day grace period elapsed | handover job starts and waits for a successor's approval; notify sponsors from `FUNDING.yml` | succession |
+| Handed over | a successor has approved | role depending on repo type: write, admin or org owner; README banner, registry requests generated, log in the issue | handed over |
+| Fallback | 60 days without approval | depending on `fallback`: publicly advertise for adoption (without permissions) or archive the repo | seeking adopter |
 
-## WILL.md – das Format
+## WILL.md – the Format
 
-`WILL.md` liegt im Repo-Root und besteht aus einem YAML-Front-Matter, das Tools lesen, und einem Markdown-Teil, den Menschen lesen. Ein einziges Dokument für beide, damit es gefunden wird (GitHub-Codesuche `path:WILL.md`) und damit Änderungen als normale Commits nachvollziehbar sind.
+`WILL.md` lives in the repo root and consists of YAML front matter that tools read and a Markdown part that humans read. A single document for both, so it can be found (GitHub code search `path:WILL.md`) and so changes are traceable as normal commits.
 
 ```markdown
 ---
 will: 1
 maintainer: octocat
 heartbeat:
-  inactivity: 180d        # ohne Signal → Warnung
-  remind_at: 50%          # Erinnerung bei der Hälfte
-  grace: 30d              # Warnung → Übergabe
-  accept_within: 60d      # Übergabe → Fallback
+  inactivity: 180d        # no signal → warning
+  remind_at: 50%          # reminder at the halfway point
+  grace: 30d              # warning → handover
+  accept_within: 60d      # handover → fallback
   signals: [commits, comments, reviews, releases, check-in]
-  scope: repo             # oder: account (alle öffentlichen Events)
+  scope: repo             # or: account (all public events)
 successors:
   - login: alice
     role: primary
-    acknowledged: 2026-09-27   # setzt der Bot, wenn alice zusagt
+    acknowledged: 2026-09-27   # set by the bot when alice accepts
   - login: bob
     role: backup
-quorum: 1                 # wie viele Nachfolger freigeben müssen
+quorum: 1                 # how many successors must approve
 grant: write              # write | admin | org-owner
 fallback: adopt           # adopt | archive | none
 registries:
@@ -85,173 +85,173 @@ registries:
   - type: pypi
     name: my_package
 notify:
-  sponsors: true          # aus FUNDING.yml
+  sponsors: true          # from FUNDING.yml
   channels: [issue, readme, discussions]
-change_cooldown: 30d      # Änderungen an successors/grant werden erst danach wirksam
+change_cooldown: 30d      # changes to successors/grant only take effect after this
 ---
 
-# Maintainer's Will für my-package
+# Maintainer's Will for my-package
 
-Warum ich das schreibe, was mir für das Projekt wichtig ist, was die
-Nachfolger wissen sollten (Lizenz bleibt MIT, keine Telemetrie,
-Release-Prozess steht in RELEASING.md).
+Why I'm writing this, what matters to me about the project, what the
+successors should know (license stays MIT, no telemetry,
+release process is in RELEASING.md).
 ```
 
-| Feld | Pflicht | Bedeutung |
+| Field | Required | Meaning |
 | --- | --- | --- |
-| `will` | ja | Schema-Version; Tools lehnen unbekannte Versionen ab |
-| `maintainer` | ja | GitHub-Login, dessen Aktivität gemessen wird; mehrere Logins erlaubt, dann zählt der letzte Aktive |
-| `heartbeat.inactivity` | ja | Fenster ohne Signal bis zur Warnung; Suffixe `d`, `w`, `m` |
-| `heartbeat.signals` | nein | welche Ereignisse als Lebenszeichen gelten; Standard alle fünf |
-| `successors[].login` | ja | mindestens einer; `acknowledged` schreibt nur der Bot nach öffentlicher Zusage |
-| `quorum` | nein | 1 für kleine Projekte; 2 für Pakete mit vielen Abhängigen |
-| `grant` | nein | Rolle, die vergeben wird; `admin` und org-owner gibt es nur in Organisationen; auf persönlichen Repos ist write die einzige Option |
-| `fallback` | nein | was passiert, wenn kein Nachfolger freigibt; `adopt` vergibt nie Rechte automatisch |
-| `registries[]` | nein | Pakete, für die Anträge vorbereitet werden; die CLI schlägt sie aus den Manifesten vor |
-| `change_cooldown` | nein | Schutz gegen gekaperte Accounts: geänderte Nachfolger gelten erst nach Frist und öffentlicher Ankündigung |
+| `will` | yes | Schema version; tools reject unknown versions |
+| `maintainer` | yes | GitHub login whose activity is measured; multiple logins allowed, in which case the most recently active one counts |
+| `heartbeat.inactivity` | yes | Window without a signal until the warning; suffixes `d`, `w`, `m` |
+| `heartbeat.signals` | no | Which events count as a sign of life; default all five |
+| `successors[].login` | yes | At least one; `acknowledged` is only written by the bot after public acceptance |
+| `quorum` | no | 1 for small projects; 2 for packages with many dependents |
+| `grant` | no | Role to be granted; `admin` and org-owner only exist in organizations; on personal repos write is the only option |
+| `fallback` | no | What happens if no successor approves; `adopt` never grants permissions automatically |
+| `registries[]` | no | Packages for which requests are prepared; the CLI suggests them from the manifests |
+| `change_cooldown` | no | Protection against hijacked accounts: changed successors only apply after the cooldown and a public announcement |
 
-Der Markdown-Teil ist frei. Empfohlene Abschnitte: Wünsche für das Projekt, Hinweise zu Release und Infrastruktur, Kontaktwege zu den Nachfolgern. Nichts davon ist rechtlich bindend; es ist ein öffentliches Versprechen, kein Testament im juristischen Sinn.
+The Markdown part is free-form. Recommended sections: wishes for the project, notes on release and infrastructure, ways to contact the successors. None of it is legally binding; it is a public promise, not a will in the legal sense.
 
-## Trigger-Logik & Zustandsmaschine
+## Trigger Logic & State Machine
 
-Gemessen wird nicht „Aktivität im Repo", sondern „Aktivität des Maintainers": Commits des Bots, Dependabot-PRs oder fremde Issues halten den Zähler nicht am Leben. Ein einziges echtes Signal setzt ihn auf null.
+What is measured is not "activity in the repo" but "activity of the maintainer": bot commits, Dependabot PRs or other people's issues don't keep the counter alive. A single genuine signal resets it to zero.
 
-**Signale (Standard, alle über die GitHub-API abfragbar):**
+**Signals (default, all queryable via the GitHub API):**
 
-- Commits, deren Author oder Committer der Maintainer-Login ist, auf jedem Branch
-- Kommentare, Reviews und Reaktionen des Maintainers in Issues und PRs
-- Releases und Tags, die der Maintainer erstellt hat
-- Expliziter Check-in: Kommentar `/alive` im Will-Issue, `workflow_dispatch` des Heartbeat-Workflows oder `will check-in` aus der CLI
-- Optional `scope: account`: jedes öffentliche Ereignis des Accounts (Events-API), damit ein Maintainer, der nur an anderen Repos arbeitet, nicht als verschwunden gilt
+- Commits whose author or committer is the maintainer login, on any branch
+- Comments, reviews and reactions by the maintainer in issues and PRs
+- Releases and tags created by the maintainer
+- Explicit check-in: `/alive` comment in the will issue, `workflow_dispatch` of the heartbeat workflow, or `will check-in` from the CLI
+- Optional `scope: account`: every public event of the account (Events API), so a maintainer who is only working on other repos isn't considered gone
 
-**Zustand** liegt in `.will/state.json`, das der Bot per Commit fortschreibt: `stage`, `last_seen`, `last_signal`, `stage_since`, `notified[]`. Jeder Stufenwechsel wird zusätzlich als Kommentar im Will-Issue protokolliert, damit er auch ohne Git-Log lesbar ist.
+**State** lives in `.will/state.json`, which the bot updates via commit: `stage`, `last_seen`, `last_signal`, `stage_since`, `notified[]`. Every stage change is additionally logged as a comment in the will issue so it is readable without the Git log.
 
-**Übergänge:**
+**Transitions:**
 
 1. `active → reminder`: `now − last_seen ≥ inactivity × remind_at`
 2. `reminder → warning`: `now − last_seen ≥ inactivity`
 3. `warning → handover`: `now − stage_since ≥ grace`
-4. `handover → handed_over`: Freigaben ≥ `quorum`
-5. `handover → fallback`: `now − stage_since ≥ accept_within` ohne Quorum
-6. `* → active`: jedes Signal des Maintainers; Warn-Issue wird geschlossen, README-Hinweis entfernt, Vermerk „Maintainer zurück am …" bleibt
+4. `handover → handed_over`: approvals ≥ `quorum`
+5. `handover → fallback`: `now − stage_since ≥ accept_within` without quorum
+6. `* → active`: any signal from the maintainer; the warning issue is closed, the README notice removed, a note "Maintainer back on …" remains
 
-**Die 60-Tage-Falle.** GitHub deaktiviert `schedule`-Workflows in Repos ohne Commit-Aktivität nach 60 Tagen – genau in dem Moment, in dem ein Dead-Man's-Switch arbeiten müsste. Lösung: Der wöchentliche Heartbeat-Lauf committet `.will/state.json` mit Bot-Identität; das zählt für GitHub als Aktivität und hält den Schedule am Leben, wird aber vom Bot selbst nicht als Maintainer-Signal gewertet. Als zweite Absicherung kann `will doctor` einen externen Pinger eintragen (z. B. ein Cron auf einem anderen Repo des Nachfolgers, das per `repository_dispatch` anstößt). Der gehostete Modus (v1.0) löst das Problem grundsätzlich.
+**The 60-day trap.** GitHub disables `schedule` workflows in repos without commit activity after 60 days – exactly when a dead man's switch would need to work. Solution: the weekly heartbeat run commits `.will/state.json` with a bot identity; GitHub counts that as activity and keeps the schedule alive, but the bot itself does not count it as a maintainer signal. As a second safeguard, `will doctor` can register an external pinger (e.g. a cron on another repo belonging to the successor that triggers via `repository_dispatch`). The hosted mode (v1.0) solves the problem fundamentally.
 
-## Die Übergabe technisch
+## The Handover, Technically
 
-&#91;embedded content: Architektur · 2 Rechtezonen, 1 Freigabe\]
+&#91;embedded content: Architecture · 2 permission zones, 1 approval\]
 
-Oben läuft alles mit dem normalen `GITHUB_TOKEN`; erst der Handover-Job unten hat Zugriff auf das App-Secret, und den bekommt er nur, wenn ein Nachfolger den Environment-Review freigibt.
+Everything at the top runs with the normal `GITHUB_TOKEN`; only the handover job at the bottom has access to the app secret, and it only gets that when a successor approves the environment review.
 
-**Environment-Gating statt eigenem Auth-System.** GitHub Environments können Required Reviewers und eigene Secrets tragen; in öffentlichen Repos ist das kostenlos. `will init` legt das Environment `maintainer-will` an, trägt die bestätigten Nachfolger als Reviewer ein und hinterlegt dort App-ID und Private Key. Die Freigabe des wartenden Jobs ist damit zugleich die Zustimmung des Nachfolgers, mit Zeitstempel und Namen im Actions-Log. Bei `quorum: 2` wartet der Job auf zwei Freigaben (Environment-Regel „prevent self-review“ + Mindestzahl).
+**Environment gating instead of a custom auth system.** GitHub Environments can carry required reviewers and their own secrets; in public repos this is free. `will init` creates the `maintainer-will` environment, adds the confirmed successors as reviewers and stores the App ID and private key there. Approving the waiting job is thus also the successor's consent, with timestamp and name in the Actions log. With `quorum: 2` the job waits for two approvals (environment rule "prevent self-review" + minimum count).
 
-**Warum eine GitHub App und kein PAT.** Ein Personal Access Token hängt am Konto des Maintainers, läuft ab oder wird mit dem Konto ungültig – genau dann, wenn es gebraucht würde. Eine App-Installation ist davon entkoppelt. Ohne Hosting muss der Maintainer die App selbst anlegen (fünf Minuten, `will init` führt durch): Berechtigungen `Administration: write`, `Contents: write`, `Issues: write`, installiert nur auf diesem Repo. Der Handover-Job mintet daraus per `actions/create-github-app-token` ein Token, das nach einer Stunde verfällt.
+**Why a GitHub App and not a PAT.** A personal access token is tied to the maintainer's account, expires, or becomes invalid along with the account – exactly when it would be needed. An app installation is decoupled from that. Without hosting, the maintainer has to create the app themselves (five minutes, `will init` walks through it): permissions `Administration: write`, `Contents: write`, `Issues: write`, installed only on this repo. The handover job mints a token from it via `actions/create-github-app-token` that expires after one hour.
 
-**Rechte-Eskalation.** Persönliche Repos kennen nur Owner und Collaborator (write); die API ignoriert dort jede feinere Rolle. Auf persönlichen Repos lädt der Handover-Job den Nachfolger deshalb erst bei der Übergabe als Collaborator ein – der Nachfolger ist in diesem Moment ohnehin anwesend, weil er gerade freigegeben hat, und nimmt die Einladung an. Damit hat er Push, Merge und Releases (über Trusted Publishing aus dem Repo-Workflow), aber keine Settings, keine Secrets und keine Übertragung: Das ist die Obergrenze persönlicher Repos. Wer volle Nachfolge will, legt das Repo in eine eigene Organisation; `will init` bietet das an (Übertragung mit dauerhafter Weiterleitung, fünf Minuten). Dort bekommt der Nachfolger bei der Nominierung `triage`, und der Handover-Job setzt per `PUT /repos/{owner}/{repo}/collaborators/{login}` die Rolle `admin` oder per `PUT /orgs/{org}/memberships/{login}` die Rolle Org-Owner (`grant: org-owner`), sodass der Nachfolger alles übernehmen kann.
+**Permission escalation.** Personal repos only know owner and collaborator (write); the API ignores any finer role there. On personal repos the handover job therefore only invites the successor as a collaborator at handover time – the successor is present at that moment anyway, having just approved, and accepts the invitation. This gives them push, merge and releases (via Trusted Publishing from the repo workflow), but no settings, no secrets and no transfer: that is the ceiling for personal repos. Anyone who wants full succession moves the repo into their own organization; `will init` offers this (transfer with a permanent redirect, five minutes). There the successor gets `triage` at nomination, and the handover job sets the role `admin` via `PUT /repos/{owner}/{repo}/collaborators/{login}` or org owner via `PUT /orgs/{org}/memberships/{login}` (`grant: org-owner`), so the successor can take over everything.
 
-**Sichtbar machen.** Der Job committet einen Block oben ins README (Stand, Nachfolger, Link zum Will-Issue), aktualisiert `.will/badge.json` für das shields.io-Endpoint-Badge, setzt einen vorhandenen repostatus-Badge um und schreibt den Abschluss ins Will-Issue. Sponsoren aus `FUNDING.yml` werden per Issue-Erwähnung informiert, Registry-Anträge landen als Dateien unter `.will/registry/`.
+**Making it visible.** The job commits a block at the top of the README (status, successor, link to the will issue), updates `.will/badge.json` for the shields.io endpoint badge, switches an existing repostatus badge, and writes the conclusion to the will issue. Sponsors from `FUNDING.yml` are notified via issue mention; registry requests land as files under `.will/registry/`.
 
-## Registry-Brücke
+## Registry Bridge
 
-Keine Registry erlaubt es, Paket-Eigentum per API zu übertragen – die eigentliche Brücke wird deshalb *vor* dem Ernstfall gebaut: Nachfolger werden heute als Mit-Eigentümer eingetragen, und Publishing wird ans Repo statt ans Konto gebunden. Im Ernstfall bleibt nur noch Papierkram, und den bereitet das Tool vor.
+No registry allows package ownership to be transferred via API – so the real bridge is built *before* the emergency: successors are added as co-owners today, and publishing is bound to the repo rather than the account. In the emergency only paperwork remains, and the tool prepares it.
 
-| Registry | Vorher (Prävention, prüft `will doctor`) | Im Ernstfall (generiert der Handover-Job) |
+| Registry | Beforehand (prevention, checked by `will doctor`) | In the emergency (generated by the handover job) |
 | --- | --- | --- |
-| npm | Nachfolger per `npm owner add`; Trusted Publishing aus dem Repo-Workflow | Kein Transfer durch npm („we do not transfer package ownership"). Vorlage für `npm deprecate` mit Verweis auf Nachfolgepaket, falls noch ein Owner erreichbar ist |
-| PyPI | Nachfolger als Collaborator mit Rolle Owner; Trusted Publisher auf Repo + Workflow + Environment | [PEP 541](https://peps.python.org/pep-0541/)-Antrag als Issue-Text: Kontaktversuche, Daten, Link auf das öffentliche Will-Issue – genau die Nachweise, die PEP 541 verlangt |
-| RubyGems | `gem owner --add`; Trusted Publishing | Vorlage für einen Ownership Call bzw. Request |
-| crates.io | Nachfolger als Owner (`cargo owner --add`); Trusted Publishing | Kein Mediationsprozess mehr; Hinweis: Fork unter neuem Namen plus `[badges]`/Deprecation im alten Crate, falls Zugriff besteht |
-| CPAN | Nachfolger als Co-Maintainer über PAUSE | Anleitung für HANDOFF/ADOPTME-Flag und PAUSE-Admin-Anfrage |
+| npm | Successors via `npm owner add`; Trusted Publishing from the repo workflow | No transfer by npm ("we do not transfer package ownership"). Template for `npm deprecate` pointing to the successor package, if an owner is still reachable |
+| PyPI | Successor as collaborator with the Owner role; Trusted Publisher on repo + workflow + environment | [PEP 541](https://peps.python.org/pep-0541/) request as issue text: contact attempts, dates, link to the public will issue – exactly the evidence PEP 541 requires |
+| RubyGems | `gem owner --add`; Trusted Publishing | Template for an ownership call or request |
+| crates.io | Successor as owner (`cargo owner --add`); Trusted Publishing | No mediation process anymore; note: fork under a new name plus `[badges]`/deprecation in the old crate, if access exists |
+| CPAN | Successor as co-maintainer via PAUSE | Instructions for the HANDOFF/ADOPTME flag and a PAUSE admin request |
 
-**Trusted Publishing ist der Hebel.** Wenn PyPI, npm, RubyGems oder crates.io dem Repo-Workflow vertrauen statt einem Konto-Token, wandert das Veröffentlichungsrecht mit dem Repo: Wer `admin` auf dem Repo hat, kann releasen, ohne dass irgendwer ein Registry-Passwort kennt. `will doctor` prüft deshalb pro Manifest (`package.json`, `pyproject.toml`, `*.gemspec`, `Cargo.toml`), ob Trusted Publishing eingerichtet ist, ob der Release-Workflow das Environment nutzt und ob jeder bestätigte Nachfolger als Owner eingetragen ist – und meldet Lücken als Bus-Faktor-Befund.
+**Trusted Publishing is the lever.** When PyPI, npm, RubyGems or crates.io trust the repo workflow instead of an account token, the publishing right moves with the repo: whoever has `admin` on the repo can release without anyone knowing a registry password. `will doctor` therefore checks per manifest (`package.json`, `pyproject.toml`, `*.gemspec`, `Cargo.toml`) whether Trusted Publishing is set up, whether the release workflow uses the environment, and whether every confirmed successor is registered as an owner – and reports gaps as a bus-factor finding.
 
-**Grenzen, offen benannt:** Bei Trusted Publishing ist die Konfiguration an Owner/Repo-Name gebunden; überträgt der Nachfolger das Repo an sich, muss er den Publisher-Eintrag anpassen (das Tool erinnert daran). npm-Namen ohne erreichbaren Owner sind verloren; das ist Registry-Politik, kein Tool-Problem, und die Vorlage sagt das ehrlich.
+**Limits, stated openly:** With Trusted Publishing the configuration is bound to the owner/repo name; if the successor transfers the repo to themselves, they must update the publisher entry (the tool reminds them). npm names without a reachable owner are lost; that is registry policy, not a tool problem, and the template says so honestly.
 
-## Sicherheit & Bedrohungsmodell
+## Security & Threat Model
 
-Das Tool vergibt Adminrechte auf Software, von der andere abhängen – es ist selbst ein Supply-Chain-Baustein und wird so entworfen. Grundsatz: Es macht Übergaben, die heute im Verborgenen und ungeprüft passieren, öffentlich, langsam und protokolliert; es schafft keinen neuen Weg, schneller an ein Projekt zu kommen.
+The tool grants admin rights on software others depend on – it is itself a supply-chain component and is designed as one. Principle: it makes handovers that today happen in secret and unvetted public, slow and logged; it does not create a new way to get at a project faster.
 
-| Angriff | Vorbild | Gegenmaßnahme |
+| Attack | Precedent | Countermeasure |
 | --- | --- | --- |
-| Sockenpuppen setzen den Maintainer unter Druck, einen Fremden aufzunehmen | xz (2024) | Nominierung ist ein bewusster Commit des Maintainers mit 30 Tagen `change_cooldown` und öffentlicher Ankündigung im Will-Issue; das Tool nominiert nie von selbst und empfiehlt, keinen zu nominieren, der nicht schon Beiträge im Repo hat |
-| Jemand „fragt nett" und bekommt das Paket | event-stream (2018) | Offene Adoption ist kein Standardpfad; `fallback: adopt` schreibt nur aus und vergibt keine Rechte, die Vergabe bleibt ein manueller Schritt mit Wartefrist |
-| Massenübernahme verwaister Pakete | AUR, Juni 2026 | Nur vorab benannte, bestätigte Logins kommen infrage; kein Prozess, den ein Fremder anstoßen kann |
-| Maintainer-Konto gekapert, Angreifer trägt sich als Nachfolger ein | – | Änderungen an `successors`, `grant`, `quorum` werden erst nach `change_cooldown` wirksam, alle bisherigen Nachfolger werden erwähnt; optional: nur signierte Commits (`require_signed: true`) ändern die Liste |
-| Nachfolger-Konto gekapert | – | Bestätigung setzt 2FA voraus (API-Feld prüfbar); Freigabe im Environment ist ein zweiter, geloggter Schritt; `quorum: 2` für Pakete mit vielen Abhängigen |
-| Angreifer mit Write-Zugriff ändert den Workflow, um an das App-Secret zu kommen | – | Das Secret liegt im Environment, das nur nach Reviewer-Freigabe erreichbar ist; Wer Write hat, ist ohnehin schon vertrauenswürdig – die Grenze wird nicht verschoben |
-| Falscher Alarm: Maintainer im Sabbatical | – | Erinnerung bei 50 %, Warnung öffentlich mit 30 Tagen Karenz, Reset mit einem Kommentar; `scope: account` zählt Aktivität in anderen Repos mit |
-| Das Tool selbst wird gekapert (Action aus dem Marketplace) | – | Action per Commit-SHA pinnen, Releases signiert; das Tool hat selbst eine `WILL.md` |
+| Sock puppets pressure the maintainer into adding a stranger | xz (2024) | Nomination is a deliberate commit by the maintainer with a 30-day `change_cooldown` and a public announcement in the will issue; the tool never nominates on its own and recommends not nominating anyone who doesn't already have contributions in the repo |
+| Someone "asks nicely" and gets the package | event-stream (2018) | Open adoption is not a default path; `fallback: adopt` only advertises and grants no permissions, granting remains a manual step with a waiting period |
+| Mass takeover of orphaned packages | AUR, June 2026 | Only pre-named, confirmed logins are eligible; no process a stranger can trigger |
+| Maintainer account hijacked, attacker adds themselves as successor | – | Changes to `successors`, `grant`, `quorum` only take effect after `change_cooldown`, all previous successors are mentioned; optionally only signed commits (`require_signed: true`) can change the list |
+| Successor account hijacked | – | Confirmation requires 2FA (API field checkable); approval in the environment is a second, logged step; `quorum: 2` for packages with many dependents |
+| Attacker with write access modifies the workflow to get the app secret | – | The secret lives in the environment, which is only reachable after reviewer approval; anyone with write access is already trusted anyway – the boundary doesn't move |
+| False alarm: maintainer on sabbatical | – | Reminder at 50 %, public warning with a 30-day grace period, reset with a single comment; `scope: account` counts activity in other repos |
+| The tool itself is hijacked (Action from the Marketplace) | – | Pin the Action by commit SHA, signed releases; the tool has its own `WILL.md` |
 
-Was das Tool bewusst **nicht** kann: Registry-Eigentum übertragen, private Schlüssel oder Passwörter weitergeben, Rechte ohne menschliche Freigabe vergeben. Wer das braucht, braucht ein anderes Werkzeug – und sollte misstrauisch sein, wenn eines es verspricht.
+What the tool deliberately **cannot** do: transfer registry ownership, pass on private keys or passwords, grant permissions without human approval. Anyone who needs that needs a different tool – and should be suspicious if one promises it.
 
-## Bedienung: CLI, Kommandos, Badge
+## Usage: CLI, Commands, Badge
 
-Ein Maintainer soll in unter zehn Minuten fertig sein: `npx maintainers-will init`, drei Fragen, ein PR. Alles Weitere passiert im Will-Issue per Kommentar, damit auch Nachfolger ohne CLI mitmachen können.
+A maintainer should be done in under ten minutes: `npx maintainers-will init`, three questions, one PR. Everything else happens in the will issue via comments, so successors can take part without the CLI.
 
-**CLI** (Node, damit `npx` ohne Installation läuft; teilt sich den Kern mit der Action):
+**CLI** (Node, so `npx` works without installation; shares its core with the Action):
 
-| Befehl | Was er tut |
+| Command | What it does |
 | --- | --- |
-| `will init` | fragt Maintainer-Login, Nachfolger, Fenster; erzeugt `WILL.md`, den Workflow, das Environment, das gepinnte Will-Issue und einen PR; führt durch das Anlegen der GitHub App |
-| `will nominate <login>` | trägt einen Nachfolger ein, fügt ihn in Org-Repos als Collaborator (`triage`) hinzu, erwähnt ihn im Will-Issue zur Bestätigung |
-| `will check-in` | setzt `last_seen` per `workflow_dispatch`; für Maintainer, die gerade nichts committen |
-| `will doctor` | Bus-Faktor-Check: unbestätigte Nachfolger, fehlende Registry-Owner, kein Trusted Publishing, App-Installation fehlt, Schedule deaktiviert, PAT statt App |
-| `will status` | aktuelle Stufe, Tage bis zur nächsten, letzte Signale |
-| `will simulate` | spielt den Ablauf im Trockenlauf durch und zeigt, wer wann was sehen würde |
+| `will init` | asks for maintainer login, successors, window; creates `WILL.md`, the workflow, the environment, the pinned will issue and a PR; walks through creating the GitHub App |
+| `will nominate <login>` | adds a successor, adds them as collaborator (`triage`) in org repos, mentions them in the will issue for confirmation |
+| `will check-in` | sets `last_seen` via `workflow_dispatch`; for maintainers who aren't committing right now |
+| `will doctor` | bus-factor check: unconfirmed successors, missing registry owners, no Trusted Publishing, app installation missing, schedule disabled, PAT instead of app |
+| `will status` | current stage, days until the next, recent signals |
+| `will simulate` | dry-runs the flow and shows who would see what and when |
 
-**Kommentar-Kommandos im Will-Issue** (der Bot prüft, wer schreibt):
+**Comment commands in the will issue** (the bot checks who is writing):
 
-- `/alive` – Maintainer setzt auf Aktiv zurück
-- `/accept-nomination` – Nachfolger bestätigt; der Bot schreibt `acknowledged` in `WILL.md`
-- `/decline` – Nachfolger tritt zurück; Maintainer wird erwähnt
-- `/pause 90d` – Maintainer pausiert den Zähler mit Ankündigung (Sabbatical, Elternzeit); öffentlich sichtbar
-- `/handover` – Maintainer startet die Übergabe freiwillig und sofort, ohne Fristen
+- `/alive` – maintainer resets to Active
+- `/accept-nomination` – successor confirms; the bot writes `acknowledged` into `WILL.md`
+- `/decline` – successor steps down; the maintainer is mentioned
+- `/pause 90d` – maintainer pauses the counter with an announcement (sabbatical, parental leave); publicly visible
+- `/handover` – maintainer starts the handover voluntarily and immediately, without deadlines
 
-**Badge** über `.will/badge.json` (shields.io-Endpoint): `will: active · seen 3d ago` grün, `warning` orange, `succession` rot, `handed over` blau, `seeking adopter` grau. Das Badge ist gleichzeitig Werbung: Wer es im README sieht, findet das Tool.
+**Badge** via `.will/badge.json` (shields.io endpoint): `will: active · seen 3d ago` green, `warning` orange, `succession` red, `handed over` blue, `seeking adopter` grey. The badge is also advertising: whoever sees it in a README finds the tool.
 
-**Verzeichnis:** Weil `WILL.md` einen festen Namen hat, ist die GitHub-Codesuche das Verzeichnis aller Projekte mit Nachfolgeplan – und eine kleine statische Seite kann daraus eine Liste „Projekte, die Nachfolger suchen" bauen. Das ist die Community-Fläche für v0.3.
+**Directory:** Because `WILL.md` has a fixed name, GitHub code search is the directory of all projects with a succession plan – and a small static site can build a list of "projects looking for successors" from it. That is the community surface for v0.3.
 
-## MVP-Roadmap
+## MVP Roadmap
 
-v0.1 ist heute Abend in drei bis vier Stunden machbar, weil es nur liest und kommentiert; alles, was Rechte vergibt, kommt erst in v0.2 mit dem Environment-Gating.
+v0.1 is doable tonight in three to four hours because it only reads and comments; everything that grants permissions only comes in v0.2 with environment gating.
 
-| Version | Umfang | Gate zum Weitermachen |
+| Version | Scope | Gate to continue |
 | --- | --- | --- |
-| v0.1 – heute Abend | `WILL.md`-Parser mit Schema; Heartbeat-Action (schedule + `workflow_dispatch`): Maintainer-Aktivität per API, Stufen Aktiv/Erinnerung/Warnung, `.will/state.json`, Badge, Will-Issue mit Protokoll; Übergabe nur als Trockenlauf-Kommentar; `will init` erzeugt `WILL.md` + Workflow; `will simulate`; README mit Story | Läuft auf deinem eigenen Repo; mit `inactivity: 1d` lässt sich der ganze Ablauf in zwei Tagen provozieren |
-| v0.2 – Woche 1 | Nominierung mit `/accept-nomination`, `/alive`, `/pause`, `/handover`; Environment-gated Handover-Job mit App-Token; `will nominate`; README-Banner; Org-Modus (`triage` → `admin` / Org-Owner) | Echte Übergabe auf einem Testrepo an einen zweiten Account, ohne Eingriff außer der Freigabe |
-| v0.3 – Woche 2–3 | `will doctor` mit Registry- und Trusted-Publishing-Checks; Antragsvorlagen (PEP 541, RubyGems, npm deprecate); Sponsoren-Info; statische Verzeichnisseite aus der Codesuche | 20 fremde Repos mit `WILL.md`; erste externe PRs für Registry-Adapter |
-| v1.0 – Monat 2–3 | Gehostete GitHub App (keine selbstgebaute App mehr, externer Scheduler statt 60-Tage-Workaround); `quorum: 2`; signierte Commits für `WILL.md`; Banner-Übersetzungen | Security-Review durch Dritte; erstes Paket mit über 1 Mio. Downloads pro Woche an Bord |
+| v0.1 – tonight | `WILL.md` parser with schema; heartbeat Action (schedule + `workflow_dispatch`): maintainer activity via API, stages Active/Reminder/Warning, `.will/state.json`, badge, will issue with log; handover only as a dry-run comment; `will init` creates `WILL.md` + workflow; `will simulate`; README with story | Runs on your own repo; with `inactivity: 1d` the whole flow can be provoked in two days |
+| v0.2 – week 1 | Nomination with `/accept-nomination`, `/alive`, `/pause`, `/handover`; environment-gated handover job with app token; `will nominate`; README banner; org mode (`triage` → `admin` / org owner) | Real handover on a test repo to a second account, with no intervention other than the approval |
+| v0.3 – weeks 2–3 | `will doctor` with registry and Trusted Publishing checks; request templates (PEP 541, RubyGems, npm deprecate); sponsor notice; static directory page from code search | 20 third-party repos with `WILL.md`; first external PRs for registry adapters |
+| v1.0 – months 2–3 | Hosted GitHub App (no more self-built app, external scheduler instead of the 60-day workaround); `quorum: 2`; signed commits for `WILL.md`; banner translations | Third-party security review; first package with over 1M weekly downloads on board |
 
-Stack: TypeScript, Node 20, ein Repo für Action und CLI (`packages/core`, `packages/action`, `packages/cli`), Octokit, `zod` für das Schema, Vitest; die Action wird mit `ncc` gebündelt. Der Kern ist reine Funktion mit injizierter Zeit, damit `will simulate` und die Tests denselben Code fahren.
+Stack: TypeScript, Node 20, one repo for Action and CLI (`packages/core`, `packages/action`, `packages/cli`), Octokit, `zod` for the schema, Vitest; the Action is bundled with `ncc`. The core is a pure function with injected time, so `will simulate` and the tests run the same code.
 
-## Launch-Plan
+## Launch Plan
 
-Heute Abend wird veröffentlicht, aber noch nicht auf Hacker News gepostet: Sonntagabend ist dort die schlechteste Zeit. Der „Show HN" kommt am Dienstag zwischen 14 und 16 Uhr UTC, wenn v0.1 zwei Tage auf echten Repos gelaufen ist.
+Publish tonight, but don't post to Hacker News yet: Sunday evening is the worst time there. The "Show HN" comes on Tuesday between 14:00 and 16:00 UTC, once v0.1 has run on real repos for two days.
 
-1. **README als Geschichte** (heute): Bus-Faktor 1, GitHubs Successor gilt nur im Todesfall, das Inventar von Nesbitt, event-stream, xz, die 400 AUR-Pakete – dann der Satz „Your project needs a will." Danach in drei Zeilen: `npx maintainers-will init`, was passiert, was nie passiert (keine Rechte ohne menschliche Freigabe).
-2. **Dogfooding** (heute): `WILL.md` im Tool-Repo selbst und in zwei eigenen Projekten, Badge im README.
-3. **Demo** (Montag): GIF von `will simulate`, das den gesamten Ablauf in 30 Sekunden zeigt.
-4. **Soft Launch** (Montag): Mastodon/fosstodon, Bluesky, Lobsters, r/opensource. Nachricht an Andrew Nesbitt mit Bitte um Feedback – sein ecosyste.ms könnte `WILL.md` indexieren; das wäre der größte Hebel für Sichtbarkeit.
-5. **Show HN** (Dienstag): Titel „Show HN: Maintainer's Will – a dead man's switch for open source projects" oder „Show HN: WILL.md – succession plans for open source, enforced by a GitHub Action". Erste Stunde: jeden Kommentar beantworten, Sicherheitsfragen ernst nehmen, Bedrohungsmodell verlinken.
-6. **Erste 20 Maintainer** (Woche 1): Solo-Maintainer beliebter Pakete, Leute mit „looking for maintainers" im README, Sponsors-Empfänger. Jedem einen fertigen PR mit `WILL.md` anbieten, nicht nur einen Link.
-7. **Beitragsflächen** öffnen: Registry-Adapter (eine Datei pro Registry), Banner-Übersetzungen, `doctor`-Checks, Good-first-issues; GitHub Discussions statt Discord in den ersten Wochen.
+1. **README as a story** (today): bus factor 1, GitHub's successor only applies on death, Nesbitt's inventory, event-stream, xz, the 400 AUR packages – then the line "Your project needs a will." After that, in three lines: `npx maintainers-will init`, what happens, what never happens (no permissions without human approval).
+2. **Dogfooding** (today): `WILL.md` in the tool repo itself and in two of my own projects, badge in the README.
+3. **Demo** (Monday): GIF of `will simulate` showing the whole flow in 30 seconds.
+4. **Soft launch** (Monday): Mastodon/fosstodon, Bluesky, Lobsters, r/opensource. Message to Andrew Nesbitt asking for feedback – his ecosyste.ms could index `WILL.md`; that would be the biggest lever for visibility.
+5. **Show HN** (Tuesday): title "Show HN: Maintainer's Will – a dead man's switch for open source projects" or "Show HN: WILL.md – succession plans for open source, enforced by a GitHub Action". First hour: answer every comment, take security questions seriously, link the threat model.
+6. **First 20 maintainers** (week 1): solo maintainers of popular packages, people with "looking for maintainers" in their README, Sponsors recipients. Offer each one a ready-made PR with `WILL.md`, not just a link.
+7. **Open contribution areas**: registry adapters (one file per registry), banner translations, `doctor` checks, good first issues; GitHub Discussions instead of Discord for the first few weeks.
 
-## Offene Fragen & Risiken
+## Open Questions & Risks
 
-- [ ] Name: ist `maintainers-will` auf npm frei? Alternativen `bequest`, `heir`, `succession-action`.
-- [ ] Bestätigen, dass Required Reviewers für Environments in öffentlichen Repos auf dem Free-Plan verfügbar sind und Leserecht für Reviewer genügt.
-- [ ] Aktivitätsmessung ohne Search-API (Rate-Limit 30/min): Events-API für die letzten 90 Tage, dann Commits mit `author=login` und `since`, dann Kommentare – reicht das für Repos mit 10.000 Commits?
-- [ ] Öffentlichkeit der Warnung: optionaler Modus, in dem die ersten 7 Tage nur die Nachfolger informiert werden (Schutz vor „Dein Projekt ist tot"-Druck)?
-- [ ] Persönliche Repos: reicht die Write-Obergrenze für die meisten, oder muss `will init` den Umzug in eine Organisation stärker empfehlen?
-- [ ] Mehrere Maintainer: Inaktivität erst, wenn alle still sind (`maintainer` als Liste)?
-- [ ] 2FA-Prüfung der Nachfolger ist per API nur für Org-Mitglieder möglich; auf persönlichen Repos bleibt es bei der Selbstauskunft im `/accept-nomination`.
-- [ ] Rechtlicher Hinweis im README: kein Testament, keine Rechtsberatung; prüfen, ob GitHubs Nutzungsbedingungen für Apps Einschränkungen für Rechteänderungen enthalten.
-- [ ] Missbrauch als Druckmittel gegen Maintainer: Warnungen sind nur vom Maintainer selbst konfigurierbar und nie durch Dritte anstoßbar – das bleibt Grundsatz.
+- [ ] Name: is `maintainers-will` free on npm? Alternatives `bequest`, `heir`, `succession-action`.
+- [ ] Confirm that required reviewers for environments are available on the Free plan for public repos and that read access is enough for reviewers.
+- [ ] Activity measurement without the Search API (rate limit 30/min): Events API for the last 90 days, then commits with `author=login` and `since`, then comments – is that enough for repos with 10,000 commits?
+- [ ] Publicity of the warning: an optional mode in which only the successors are notified for the first 7 days (protection against "your project is dead" pressure)?
+- [ ] Personal repos: is the write ceiling enough for most, or should `will init` recommend moving to an organization more strongly?
+- [ ] Multiple maintainers: inactivity only once all are silent (`maintainer` as a list)?
+- [ ] 2FA checks on successors are only possible via API for org members; on personal repos it remains self-declared in `/accept-nomination`.
+- [ ] Legal notice in the README: not a will, not legal advice; check whether GitHub's terms of service for apps restrict permission changes.
+- [ ] Abuse as leverage against maintainers: warnings can only be configured by the maintainer and can never be triggered by third parties – that remains a principle.
 
-## Quellen
+## Sources
 
-- [How Open Source Projects Change Hands – Andrew Nesbitt, 16.06.2026](https://nesbitt.io/2026/06/16/how-open-source-projects-change-hands.html)
-- [Dumb Ways for an Open Source Project to Die – Andrew Nesbitt, 19.05.2026](https://nesbitt.io/2026/05/19/dumb-ways-for-an-open-source-project-to-die.html)
+- [How Open Source Projects Change Hands – Andrew Nesbitt, 2026-06-16](https://nesbitt.io/2026/06/16/how-open-source-projects-change-hands.html)
+- [Dumb Ways for an Open Source Project to Die – Andrew Nesbitt, 2026-05-19](https://nesbitt.io/2026/05/19/dumb-ways-for-an-open-source-project-to-die.html)
 - [PEP 541 – Package Index Name Retention](https://peps.python.org/pep-0541/)
 - [GitHub Docs Issue #40673 – Maintaining ownership continuity](https://github.com/github/docs/issues/40673)
 - [GitHub Community Discussion #23164 – abandoned repositories](https://github.com/orgs/community/discussions/23164)
